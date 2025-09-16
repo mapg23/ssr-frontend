@@ -1,0 +1,24 @@
+{
+  "name": "ssr-frontend",
+  "version": "1.0.0",
+  "description": "frontend for ssr-editor",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mapg23/ssr-frontend.git"
+  },
+  "keywords": [
+    "React",
+    "Frontend",
+    "SPA"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mapg23/ssr-frontend/issues"
+  },
+  "homepage": "https://github.com/mapg23/ssr-frontend#readme"
+}
