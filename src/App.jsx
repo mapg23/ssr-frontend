@@ -1,10 +1,12 @@
 import Message from "./Message";
-import DocsList from "./components/DocsList";
+// import DocsList from "./components/DocsList";
+import RefactoredDocsList from "./components/RefactoredDocsList";
 
 function App() {
   return (
     <div>
-      <DocsList></DocsList>
+      {/* <DocsList></DocsList> */}
+      <RefactoredDocsList></RefactoredDocsList>
     </div>
   );
 }
