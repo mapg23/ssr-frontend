@@ -1,25 +1,31 @@
+// src/components/RefactoredDocsList.jsx
+import documentsObject from "../models/document.js"
 import { useState, useEffect } from "react";
 
 function RefactoredDocsList() {
   const [documents, setDocuments] = useState([]);
-
-  if (documents) {
-      console.log(documents);
-  };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    try {
-      fetch("")
-        .then((res) => res.json())
-        .then((data) => setDocuments(data["data"]["result"]));
-    } catch (error) {
-        console.error(error)
+    async function loadDocs() {
+      try {
+        const documentFetchedData = await documentsObject.fetchDocuments();
+
+        if (documentFetchedData) {
+          setDocuments(documentFetchedData.data.results);
+        }
+      } catch (e) {
+          setError(e.message);
+      } finally {
+          setLoading(false);
+      }
     }
+    loadDocs();
   }, []);
 
-  if (!documents) {
-    return <p>Loading documents...</p>
-  };
+  if (loading) return <p>Loading documents...</p>;
+  if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
 
   return (
     <>
@@ -31,7 +37,7 @@ function RefactoredDocsList() {
             className="list-group-item"
             onClick={() => console.log(item)}
           >
-            <a href="">{item.name}</a>
+            {item.name}
           </li>
         ))}
       </ul>

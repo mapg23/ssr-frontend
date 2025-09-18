@@ -1,4 +1,4 @@
-const documentURL = process.env.VITE_DOC_URL
+const documentURL = import.meta.env.VITE_DOC_URL
 
 const documentsObject = {
     fetchDocuments: async function () {
