@@ -1,13 +1,18 @@
-import { baseURL } from "../utils.js";
+const documentURL = process.env.VITE_DOC_URL
 
-const documents = {
-    fetchDocuments: async function getDelayedTrains() {
-        const response = await fetch(`${baseURL}/delayed`);
+const documentsObject = {
+    fetchDocuments: async function () {
+        try {
+            const response = await fetch(`${documentURL}`);
 
-        const result = await response.json();
+            const data = await response.json();
 
-        return result.data;
+            return data; //Results object.
+        } catch (error) {
+            console.error(`Fetching error in document.js model ${error}`)
+            return null;
+        }
     }
 };
 
-export default documents;
+export default documentsObject;
