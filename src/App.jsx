@@ -5,7 +5,6 @@ import RefactoredDocsList from "./components/RefactoredDocsList";
 function App() {
   return (
     <div>
-      {/* <DocsList></DocsList> */}
       <RefactoredDocsList></RefactoredDocsList>
     </div>
   );

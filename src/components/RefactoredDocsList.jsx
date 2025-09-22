@@ -13,7 +13,7 @@ function RefactoredDocsList() {
         const documentFetchedData = await documentsObject.fetchDocuments();
 
         if (documentFetchedData) {
-          setDocuments(documentFetchedData.data.results);
+          setDocuments(documentFetchedData.data.result);
         }
       } catch (e) {
           setError(e.message);
@@ -35,9 +35,8 @@ function RefactoredDocsList() {
           <li
             key={item._id}
             className="list-group-item"
-            onClick={() => console.log(item)}
           >
-            {item.name}
+            {item.title}
           </li>
         ))}
       </ul>

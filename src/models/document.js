@@ -7,6 +7,7 @@ const documentsObject = {
 
             const data = await response.json();
 
+            console.log("data", data);
             return data; //Results object.
         } catch (error) {
             console.error(`Fetching error in document.js model ${error}`)
