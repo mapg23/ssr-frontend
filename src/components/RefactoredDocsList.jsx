@@ -6,6 +6,11 @@ function RefactoredDocsList() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedDoc, setSelectedDoc] = useState(null);
+
+  const displayItemDetails = (item) => {
+    setSelectedDoc(item);
+  }
 
   useEffect(() => {
     async function loadDocs() {
@@ -35,11 +40,33 @@ function RefactoredDocsList() {
           <li
             key={item._id}
             className="list-group-item"
+            onClick={() => displayItemDetails(item)}
           >
             {item.title}
           </li>
         ))}
       </ul>
+
+      {selectedDoc && (
+        <form style={{ marginTop: '20px', padding: '20px', border: '1px solid #ff0000ff' }}>
+          <label htmlFor="title">Titel</label>
+          <input 
+            type="text" 
+            name="title" 
+            id="title"
+            defaultValue={selectedDoc.title || ''} 
+          /><br></br>
+
+          <label htmlFor="content">Innehåll</label>
+          <textarea 
+            name="content" 
+            id="content"
+            defaultValue={selectedDoc.content || ''}
+          />
+
+          <input type="submit" value="Uppdatera" />
+        </form>
+      )}
     </>
   );
 }
