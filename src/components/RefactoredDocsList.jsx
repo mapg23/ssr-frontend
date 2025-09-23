@@ -12,6 +12,17 @@ function RefactoredDocsList() {
     setSelectedDoc(item);
   }
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(e.target);
+
+    const title = formData.get('title');
+
+    const content = formData.get('content');
+
+    console.log('Updated:', { title, content });
+  }
+
   useEffect(() => {
     async function loadDocs() {
       try {
@@ -34,39 +45,55 @@ function RefactoredDocsList() {
 
   return (
     <>
-      <h1>Documents</h1>
-      <ul className="list-group">
-        {documents.map((item) => (
-          <li
-            key={item._id}
-            className="list-group-item"
-            onClick={() => displayItemDetails(item)}
-          >
-            {item.title}
-          </li>
-        ))}
-      </ul>
+      <div class="d-flex justify-content-center">
+        <h1>Documents</h1>
+        <ul className="list-group">
+          {documents.map((item) => (
+            <li
+              key={item._id}
+              className="list-group-item"
+              onClick={() => displayItemDetails(item)}
+            >
+              {item.title}
+            </li>
+          ))}
+        </ul>
 
-      {selectedDoc && (
-        <form style={{ marginTop: '20px', padding: '20px', border: '1px solid #ff0000ff' }}>
-          <label htmlFor="title">Titel</label>
-          <input 
-            type="text" 
-            name="title" 
-            id="title"
-            defaultValue={selectedDoc.title || ''} 
-          /><br></br>
+        {selectedDoc && (
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="title">Titel</label>
+              <input 
+                type="text" 
+                name="title" 
+                id="title"
+                className = "form-control"
+                defaultValue={selectedDoc.title || ''} 
+              /><br></br>
+            </div>
+            <div className="form-group">
+              <label htmlFor="content">Innehåll</label>
+              <textarea 
+                name="content" 
+                id="content"
+                defaultValue={selectedDoc.content || ''}
+                className = "form-control"
+              />
+            </div>
 
-          <label htmlFor="content">Innehåll</label>
-          <textarea 
-            name="content" 
-            id="content"
-            defaultValue={selectedDoc.content || ''}
-          />
+            <button 
+              className="btn btn-primary me-md-2"
+              type="submit"
+            >Uppdatera</button>
 
-          <input type="submit" value="Uppdatera" />
-        </form>
-      )}
+            <button
+              className="btn btn-secondary me-md-2"
+              type="button" 
+              value="Avbryt"
+            > Avbryt </button>
+          </form>
+        )}
+      </div>
     </>
   );
 }
