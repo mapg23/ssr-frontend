@@ -10,18 +10,19 @@ function DocInfo() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const handleCancelButton = () => {
+    navigate('/');
+  }
 
-  const handleSubmitAndCancel = (event) => {
+  const handleSubmitButton = (event) => {
     event.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(event.target);
 
     const title = formData.get('title');
 
     const content = formData.get('content');
 
-    if (formData && title && content) {
-        console.log('Updated:', { title, content });
-    }
+    console.log('Updated:', { title, content });
     navigate('/');
   }
 
@@ -64,37 +65,37 @@ function DocInfo() {
 
         <div className="col-md-6">
           {document && (
-            <form onSubmit={handleSubmitAndCancel}>
+            <form onSubmit={handleSubmitButton}>
               <div className="form-group mb-3">
                 <label htmlFor="title">Titel</label>
                 <input 
-                  type="text" 
-                  name="title" 
+                  type="text"
+                  name="title"
                   id="title"
                   className = "form-control"
-                  defaultValue={document.title || ''} 
+                  defaultValue={document.title || ''}
                 /><br></br>
               </div>
               <div className="form-group">
                 <label htmlFor="content">Innehåll</label>
-                <textarea 
-                  name="content" 
+                <textarea
+                  name="content"
                   id="content"
                   defaultValue={document.content || ''}
                   className = "form-control"
                 />
               </div>
 
-              <button 
+              <button
                 className="btn btn-primary me-md-2"
                 type="submit"
               >Uppdatera</button>
 
               <button
                 className="btn btn-secondary me-md-2"
-                type="button" 
+                type="button"
                 value="Avbryt"
-                onClick={handleSubmitAndCancel}
+                onClick={handleCancelButton}
               > Avbryt </button>
             </form>
           )}
