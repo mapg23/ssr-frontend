@@ -9,8 +9,8 @@ function App() {
     <Router>
       <div>
         <Routes>
-          <Route path="/" element={<RefactoredDocsList/>} />
-          <Route path="/:id" element={<DocInfo/>} />
+          <Route path="/" element={<RefactoredDocsList/>}/>
+          <Route path="/:id" element={<DocInfo/>}/>
         </Routes>
       </div>
     </Router>

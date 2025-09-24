@@ -35,7 +35,7 @@ const displayItemDetails = (item) => {
 
   return (
     <>
-      <div class="container mt-4">
+      <div className="container mt-4">
         <h1 >Documents</h1>
         <div className="row">
           <div className="col-md-6"></div>
