@@ -9,6 +9,10 @@ function RefactoredDocsList() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+const handleCreateButton = () => {
+  navigate(`/create-doc`);
+}
+
 const displayItemDetails = (item) => {
   navigate(`/${item._id}`);
 }
@@ -38,7 +42,7 @@ const displayItemDetails = (item) => {
       <div className="container mt-4">
         <h1 >Documents</h1>
         <div className="row">
-          <div className="col-md-6"></div>
+          <div className="col-md-6">
             <ul className="list-group">
               {documents.map((item) => (
                 <li
@@ -46,11 +50,18 @@ const displayItemDetails = (item) => {
                   className="list-group-item"
                   onClick={() => displayItemDetails(item)}
                 >
-                  {item.title}
+                  <h4>{item.title}</h4>
                 </li>
               ))}
             </ul>
+            <button
+              className="btn btn-primary me-md-2"
+              type="button"
+              value="Create"
+              onClick={handleCreateButton}
+            >Create a new doc</button>
           </div>
+        </div>
       </div>
     </>
   );

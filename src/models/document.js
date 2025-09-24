@@ -33,7 +33,7 @@ const documentsObject = {
         try {
             const docURL = `${documentURL}update/${id}`;
 
-            console.log("docURL", docURL); 
+            // console.log("docURL", docURL);
             const response = await fetch(docURL, {
                 method: "POST",
                 headers: {
@@ -51,6 +51,32 @@ const documentsObject = {
             return data;
         } catch (error) {
             console.error(`fetchDocumentByID error in document.js model ${error}`)
+            return null;
+        }
+    },
+
+    createNewDoc: async function (updatedDoc) {
+        try {
+            const docURL = `${documentURL}`;
+
+            // console.log("docURL", docURL); 
+            const response = await fetch(docURL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedDoc)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to create document: ${response.statusText}`);
+            };
+            const data = await response.json();
+
+            // console.log("createNewDoc data", data);
+            return data;
+        } catch (error) {
+            console.error(`createNewDoc error in document.js model ${error}`)
             return null;
         }
     }
