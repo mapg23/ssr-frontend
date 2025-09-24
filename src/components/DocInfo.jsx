@@ -14,15 +14,16 @@ function DocInfo() {
     navigate('/');
   }
 
-  const handleSubmitButton = (event) => {
+  const handleSubmitButton = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
 
-    const title = formData.get('title');
+    const updatedDoc = {
+        title: formData.get("title"),
+        content: formData.get("content"),
+    };
 
-    const content = formData.get('content');
-
-    console.log('Updated:', { title, content });
+    await documentsObject.updateDocumentByID(id, updatedDoc);
     navigate('/');
   }
 

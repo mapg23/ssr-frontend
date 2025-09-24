@@ -7,7 +7,7 @@ const documentsObject = {
 
             const data = await response.json();
 
-            console.log("data", data);
+            // console.log("data", data);
             return data; //Results object.
         } catch (error) {
             console.error(`fetchDocuments error in document.js model ${error}`)
@@ -21,8 +21,34 @@ const documentsObject = {
 
             const data = await response.json();
 
-            console.log("data", data);
-            return data; //Results object.
+            // console.log("data", data);
+            return data;
+        } catch (error) {
+            console.error(`fetchDocumentByID error in document.js model ${error}`)
+            return null;
+        }
+    },
+
+    updateDocumentByID: async function (id, updatedDoc) {
+        try {
+            const docURL = `${documentURL}update/${id}`;
+
+            console.log("docURL", docURL); 
+            const response = await fetch(docURL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedDoc)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to update document: ${response.statusText}`);
+            };
+            const data = await response.json();
+
+            console.log("updateDocumentByID data", data);
+            return data;
         } catch (error) {
             console.error(`fetchDocumentByID error in document.js model ${error}`)
             return null;
