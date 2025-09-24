@@ -7,8 +7,8 @@ const documentsObject = {
 
             const data = await response.json();
 
-            // console.log("data", data);
-            return data; //Results object.
+            // console.log("fetchDocuments data", data);
+            return data;
         } catch (error) {
             console.error(`fetchDocuments error in document.js model ${error}`)
             return null;
@@ -21,7 +21,7 @@ const documentsObject = {
 
             const data = await response.json();
 
-            // console.log("data", data);
+            // console.log("fetchDocumentByID data", data);
             return data;
         } catch (error) {
             console.error(`fetchDocumentByID error in document.js model ${error}`)
@@ -47,7 +47,7 @@ const documentsObject = {
             };
             const data = await response.json();
 
-            console.log("updateDocumentByID data", data);
+            // console.log("updateDocumentByID data", data);
             return data;
         } catch (error) {
             console.error(`fetchDocumentByID error in document.js model ${error}`)
