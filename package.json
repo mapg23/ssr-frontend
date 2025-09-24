@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://mapg23.github.io/ssr-frontend",
+
   "scripts": {
     "dev": "vite",
     "predeploy": "npm run build",
