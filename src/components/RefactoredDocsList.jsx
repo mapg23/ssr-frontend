@@ -39,28 +39,32 @@ const displayItemDetails = (item) => {
 
   return (
     <>
-      <div className="container mt-4">
-        <h1 >Documents</h1>
-        <div className="row">
-          <div className="col-md-6">
-            <ul className="list-group">
-              {documents.map((item) => (
-                <li
-                  key={item._id}
-                  className="list-group-item"
-                  onClick={() => displayItemDetails(item)}
-                >
-                  <h4>{item.title}</h4>
-                </li>
-              ))}
-            </ul>
-            <button
-              className="btn btn-primary me-md-2"
-              type="button"
-              value="Create"
-              onClick={handleCreateButton}
-            >Create a new doc</button>
-          </div>
+      <div className="container mt-4 g-5">
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h1 >Documents</h1>
+          <button
+            className="btn btn-primary me-md-2"
+            type="button"
+            value="Create"
+            onClick={handleCreateButton}
+          >+ Create a new doc</button>
+        </div>
+
+        <div className="row g-4">
+          {documents.map((item) => (
+            <div key={item._id} className="col-md-4">
+              <div
+                className="card h-100 shadow-sm p-3"
+                onClick={() => displayItemDetails(item)}
+                style={{ cursor: "-moz-grab" }}
+              >
+                <h5 className="card-title">{item.title}</h5>
+                <p className="card-text text-muted">
+                  {item.content?.slice(0, 80)}...
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </>
