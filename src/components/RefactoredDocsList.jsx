@@ -1,27 +1,17 @@
 // src/components/RefactoredDocsList.jsx
 import documentsObject from "../models/document.js"
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 
 function RefactoredDocsList() {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedDoc, setSelectedDoc] = useState(null);
+  const navigate = useNavigate();
 
-  const displayItemDetails = (item) => {
-    setSelectedDoc(item);
-  }
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const formData = new FormData(e.target);
-
-    const title = formData.get('title');
-
-    const content = formData.get('content');
-
-    console.log('Updated:', { title, content });
-  }
+const displayItemDetails = (item) => {
+  navigate(`/${item._id}`);
+}
 
   useEffect(() => {
     async function loadDocs() {
@@ -45,54 +35,22 @@ function RefactoredDocsList() {
 
   return (
     <>
-      <div class="d-flex justify-content-center">
-        <h1>Documents</h1>
-        <ul className="list-group">
-          {documents.map((item) => (
-            <li
-              key={item._id}
-              className="list-group-item"
-              onClick={() => displayItemDetails(item)}
-            >
-              {item.title}
-            </li>
-          ))}
-        </ul>
-
-        {selectedDoc && (
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="title">Titel</label>
-              <input 
-                type="text" 
-                name="title" 
-                id="title"
-                className = "form-control"
-                defaultValue={selectedDoc.title || ''} 
-              /><br></br>
-            </div>
-            <div className="form-group">
-              <label htmlFor="content">Innehåll</label>
-              <textarea 
-                name="content" 
-                id="content"
-                defaultValue={selectedDoc.content || ''}
-                className = "form-control"
-              />
-            </div>
-
-            <button 
-              className="btn btn-primary me-md-2"
-              type="submit"
-            >Uppdatera</button>
-
-            <button
-              className="btn btn-secondary me-md-2"
-              type="button" 
-              value="Avbryt"
-            > Avbryt </button>
-          </form>
-        )}
+      <div class="container mt-4">
+        <h1 >Documents</h1>
+        <div className="row">
+          <div className="col-md-6"></div>
+            <ul className="list-group">
+              {documents.map((item) => (
+                <li
+                  key={item._id}
+                  className="list-group-item"
+                  onClick={() => displayItemDetails(item)}
+                >
+                  {item.title}
+                </li>
+              ))}
+            </ul>
+          </div>
       </div>
     </>
   );
