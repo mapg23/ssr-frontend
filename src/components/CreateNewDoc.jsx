@@ -15,7 +15,7 @@ function DocInfo() {
     };
 
     await documentsObject.createNewDoc(createDocObject);
-    navigate('/');
+    navigate('/ssr-frontend/');
   }
 
   return (
