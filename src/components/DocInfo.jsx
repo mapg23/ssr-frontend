@@ -11,7 +11,7 @@ function DocInfo() {
   const navigate = useNavigate();
 
   const handleCancelButton = () => {
-    navigate('/');
+    navigate('/ssr-frontend/');
   }
 
   const handleSubmitButton = async (event) => {
@@ -24,7 +24,7 @@ function DocInfo() {
     };
 
     await documentsObject.updateDocumentByID(id, updatedDoc);
-    navigate('/');
+    navigate('/ssr-frontend/');
   }
 
   useEffect(() => {

@@ -10,9 +10,9 @@ function App() {
     <Router>
       <div>
         <Routes>
-          <Route path="/" element={<RefactoredDocsList/>}/>
-          <Route path="/:id" element={<DocInfo/>}/>
-          <Route path="/create-doc" element={<CreateNewDoc/>}/>
+          <Route path="/ssr-frontend/" element={<RefactoredDocsList/>}/>
+          <Route path="/ssr-frontend/:id" element={<DocInfo/>}/>
+          <Route path="/ssr-frontend/create-doc" element={<CreateNewDoc/>}/>
         </Routes>
       </div>
     </Router>

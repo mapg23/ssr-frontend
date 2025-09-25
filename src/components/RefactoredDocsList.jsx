@@ -10,11 +10,11 @@ function RefactoredDocsList() {
   const navigate = useNavigate();
 
 const handleCreateButton = () => {
-  navigate(`/create-doc`);
+  navigate(`/ssr-frontend/create-doc`);
 }
 
 const displayItemDetails = (item) => {
-  navigate(`/${item._id}`);
+  navigate(`/ssr-frontend/${item._id}`);
 }
 
   useEffect(() => {
