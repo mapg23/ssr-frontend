@@ -11,7 +11,6 @@ function DocInfo() {
   const [error, setError] = useState(null);
   const { id, index } = useParams();
   const navigate = useNavigate();
-  const [ EditorContent, setEditorContent] = useState(String);
 
   const handleCancelButton = () => {
     navigate('/ssr-frontend/');
@@ -41,8 +40,6 @@ function DocInfo() {
         
       // Emit update to server
       socket.emit("update_doc", { id: `${id}/${index}`, data: {...document, [name]: value } });
-
-      console.log(document);
     };
 
 
@@ -67,14 +64,11 @@ function DocInfo() {
         setLoading(false);
       }
 
-
       // socket
       socket.emit("join_room", {id: id, index: index});
 
       const handleUpdate = (update) => {
-        console.log(update);
         setDocument(update);
-        // setDocument(prev => ({ ...prev, title: update }));
       }
 
       socket.on("doc_updated", handleUpdate);
