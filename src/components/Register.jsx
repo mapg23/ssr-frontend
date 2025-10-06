@@ -69,16 +69,6 @@ function Register() {
                 placeholder="Password"
               />
             </div>
-            <div className="mb-3 form-check">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                id="rememberMe"
-              />
-              <label className="form-check-label" htmlFor="rememberMe">
-                Remember me
-              </label>
-            </div>
             <button type="submit" className="btn btn-primary w-100">
               Register
             </button>

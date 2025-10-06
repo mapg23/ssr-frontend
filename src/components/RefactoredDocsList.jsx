@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 function RefactoredDocsList() {
+  const [item_id, setItemID] = useState(String);
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,17 +14,20 @@ const handleCreateButton = () => {
   navigate(`/ssr-frontend/create-doc`);
 }
 
-const displayItemDetails = (item) => {
-  navigate(`/ssr-frontend/${item._id}`);
+const displayItemDetails = (item, index) => {
+  navigate(`/ssr-frontend/${item_id}/${index}`);
 }
 
   useEffect(() => {
     async function loadDocs() {
       try {
         const documentFetchedData = await documentsObject.fetchDocuments();
-
-        if (documentFetchedData) {
-          setDocuments(documentFetchedData.data.result);
+        const result = documentFetchedData?.data?.result;
+        setItemID(result[0]._id);
+        if (result) {
+          setDocuments(result[0].docs || []);
+        } else {
+          setDocuments([]);
         }
       } catch (e) {
           setError(e.message);
@@ -51,11 +55,11 @@ const displayItemDetails = (item) => {
         </div>
 
         <div className="row g-4">
-          {documents.map((item) => (
-            <div key={item._id} className="col-md-4">
+          {documents.map((item, index) => (
+            <div key={index} className="col-md-4">
               <div
                 className="card h-100 shadow-sm p-3"
-                onClick={() => displayItemDetails(item)}
+                onClick={() => displayItemDetails(item, index)}
                 style={{ cursor: "-moz-grab" }}
               >
                 <h5 className="card-title">{item.title}</h5>

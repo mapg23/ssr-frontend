@@ -3,7 +3,7 @@ const documentURL = import.meta.env.VITE_DOC_URL
 const documentsObject = {
     fetchDocuments: async function () {
         try {
-            const response = await fetch(`${documentURL}`);
+            const response = await fetch(`${documentURL}`, { credentials: 'include' });
 
             const data = await response.json();
 
@@ -15,9 +15,9 @@ const documentsObject = {
         }
     },
 
-    fetchDocumentByID: async function (id) {
+    fetchDocumentByID: async function (id, index) {
         try {
-            const response = await fetch(`${documentURL}${id}`);
+            const response = await fetch(`${documentURL}${id}/${index}`, { credentials: 'include' });
 
             const data = await response.json();
 
@@ -29,13 +29,13 @@ const documentsObject = {
         }
     },
 
-    updateDocumentByID: async function (id, updatedDoc) {
+    updateDocumentByID: async function (id, index, updatedDoc) {
         try {
-            const docURL = `${documentURL}update/${id}`;
+            const docURL = `${documentURL}update/${id}/${index}`;
 
-            // console.log("docURL", docURL);
             const response = await fetch(docURL, {
                 method: "POST",
+                credentials: 'include',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -47,7 +47,6 @@ const documentsObject = {
             };
             const data = await response.json();
 
-            // console.log("updateDocumentByID data", data);
             return data;
         } catch (error) {
             console.error(`fetchDocumentByID error in document.js model ${error}`)
@@ -60,6 +59,7 @@ const documentsObject = {
             const docURL = `${documentURL}register`;
             const response = await fetch(docURL, {
                 method: "POST",
+                credentials: 'include',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -77,13 +77,37 @@ const documentsObject = {
         } 
     },
 
+    LoginNewUser: async function (userObject) {
+        try {
+            const docURL = `${documentURL}login`;
+            const response = await fetch(docURL, {
+                method: "POST",
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(userObject)
+            });
+
+            if(!response.ok) {
+                throw new Error('Falied to login User');
+            }
+            const data = await response.json();
+
+            return data;
+        } catch (error) {
+            console.error(`Register error in document.js model ${error}`);
+            return null;
+        } 
+    },
+
     createNewDoc: async function (updatedDoc) {
         try {
             const docURL = `${documentURL}`;
 
-            // console.log("docURL", docURL); 
             const response = await fetch(docURL, {
                 method: "POST",
+                credentials: 'include',
                 headers: {
                     "Content-Type": "application/json"
                 },
@@ -95,7 +119,6 @@ const documentsObject = {
             };
             const data = await response.json();
 
-            // console.log("createNewDoc data", data);
             return data;
         } catch (error) {
             console.error(`createNewDoc error in document.js model ${error}`)

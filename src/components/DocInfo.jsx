@@ -7,7 +7,7 @@ function DocInfo() {
   const [document, setDocument] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { id } = useParams();
+  const { id, index } = useParams();
   const navigate = useNavigate();
 
   const handleCancelButton = () => {
@@ -23,15 +23,14 @@ function DocInfo() {
         content: formData.get("content"),
     };
 
-    await documentsObject.updateDocumentByID(id, updatedDoc);
+    await documentsObject.updateDocumentByID(id, index, updatedDoc);
     navigate('/ssr-frontend/');
   }
 
   useEffect(() => {
     async function loadDocInfo() {
       try {
-        const documentFetchedData = await documentsObject.fetchDocumentByID(id);
-
+        const documentFetchedData = await documentsObject.fetchDocumentByID(id, index);
         if (documentFetchedData) {
           setDocument(documentFetchedData.data);
         }
