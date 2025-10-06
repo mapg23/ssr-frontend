@@ -1,6 +1,19 @@
 const documentURL = import.meta.env.VITE_DOC_URL
 
 const documentsObject = {
+
+    checkCookies: async function () {
+        try {
+            const response = await fetch(`${documentURL}check-cookies`, { credentials: 'include'});
+            const data = await response.json();
+
+            return data;
+        } catch (err) {
+            console.error("Failed to check if cookies is authorized");
+            return null;
+        }
+    },
+
     fetchDocuments: async function () {
         try {
             const response = await fetch(`${documentURL}`, { credentials: 'include' });

@@ -21,6 +21,14 @@ const displayItemDetails = (item, index) => {
   useEffect(() => {
     async function loadDocs() {
       try {
+
+        const cookies = await documentsObject.checkCookies();
+
+        if (!cookies.authorized) {
+          navigate("/ssr-frontend/login");
+          return;
+        }
+
         const documentFetchedData = await documentsObject.fetchDocuments();
         const result = documentFetchedData?.data?.result;
         setItemID(result[0]._id);

@@ -30,6 +30,14 @@ function DocInfo() {
   useEffect(() => {
     async function loadDocInfo() {
       try {
+
+        const cookies = await documentsObject.checkCookies();
+
+        if (!cookies.authorized) {
+          navigate("/ssr-frontend/login");
+          return;
+        }
+
         const documentFetchedData = await documentsObject.fetchDocumentByID(id, index);
         if (documentFetchedData) {
           setDocument(documentFetchedData.data);
