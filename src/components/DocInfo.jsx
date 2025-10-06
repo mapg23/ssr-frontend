@@ -14,6 +14,10 @@ function DocInfo() {
     navigate('/ssr-frontend/');
   }
 
+  const handleShareDocument = () => {
+    navigate(`/ssr-frontend/share-document/${id}/${index}`);
+  }
+
   const handleSubmitButton = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
@@ -108,6 +112,15 @@ function DocInfo() {
             </form>
           )}
         </div>
+
+          <br/>
+        <button
+          className="btn btn-secondary me-md-2"
+          type="button"
+          value="Avbryt"
+          onClick={handleShareDocument}
+        > Dela dokument </button>
+
       </div>
     </>
   );

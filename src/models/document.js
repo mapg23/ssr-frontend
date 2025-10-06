@@ -14,6 +14,31 @@ const documentsObject = {
         }
     },
 
+    shareDocument: async function (id, index, dataObj) {
+        try {
+            const docURL = `${documentURL}share-document/${id}/${index}`;
+
+            const response = await fetch(docURL, {
+                method: "POST",
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(dataObj)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to share document: ${response.statusText}`);
+            };
+            const data = await response.json();
+
+            return data;
+        } catch (error) {
+            console.error(`fetchDocumentByID error in document.js model ${error}`)
+            return null;
+        }
+    },
+
     fetchDocuments: async function () {
         try {
             const response = await fetch(`${documentURL}`, { credentials: 'include' });
