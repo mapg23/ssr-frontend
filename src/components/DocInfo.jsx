@@ -3,12 +3,15 @@ import documentsObject from "../models/document.js"
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 
+import { socket } from "../socket.js";
+
 function DocInfo() {
   const [document, setDocument] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id, index } = useParams();
   const navigate = useNavigate();
+  const [ EditorContent, setEditorContent] = useState(String);
 
   const handleCancelButton = () => {
     navigate('/ssr-frontend/');
@@ -31,29 +34,60 @@ function DocInfo() {
     navigate('/ssr-frontend/');
   }
 
+    // Handle typing locally
+    const handleChange = (e) => {
+      const { name, value } = e.target; // name="title" or "content"
+      setDocument(prev => ({ ...prev, [name]: value }));
+        
+      // Emit update to server
+      socket.emit("update_doc", { id: `${id}/${index}`, data: {...document, [name]: value } });
+
+      console.log(document);
+    };
+
+
   useEffect(() => {
     async function loadDocInfo() {
       try {
-
+        
+        // cookies
         const cookies = await documentsObject.checkCookies();
-
         if (!cookies.authorized) {
           navigate("/ssr-frontend/login");
           return;
         }
-
+        // Fetching
         const documentFetchedData = await documentsObject.fetchDocumentByID(id, index);
         if (documentFetchedData) {
           setDocument(documentFetchedData.data);
         }
       } catch (e) {
-          setError(e.message);
+        setError(e.message);
       } finally {
-          setLoading(false);
+        setLoading(false);
       }
+
+
+      // socket
+      socket.emit("join_room", {id: id, index: index});
+
+      const handleUpdate = (update) => {
+        console.log(update);
+        setDocument(update);
+        // setDocument(prev => ({ ...prev, title: update }));
+      }
+
+      socket.on("doc_updated", handleUpdate);
+
+      
+      // Cleanup when leaving the page
+      return () => {
+        socket.off("doc_updated", handleUpdate);
+      };
+      
     }
     loadDocInfo();
-  }, []);
+  }, [id, index]);
 
   if (loading) return <p>Loading doc's info...</p>;
   if (error) return <p style={{ color: "red" }}>Error: {error}</p>;
@@ -85,7 +119,9 @@ function DocInfo() {
                   name="title"
                   id="title"
                   className = "form-control"
-                  defaultValue={document.title || ''}
+                  value={document.title || ''}
+                  // value={document.title || ''}
+                  onChange={handleChange}
                 /><br></br>
               </div>
               <div className="form-group">
@@ -93,7 +129,8 @@ function DocInfo() {
                 <textarea
                   name="content"
                   id="content"
-                  defaultValue={document.content || ''}
+                  value={document.content || ''}
+                  onChange={handleChange}
                   className = "form-control"
                 />
               </div>

@@ -1,5 +1,3 @@
-// import Message from "./Message";
-// import DocsList from "./components/DocsList";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import RefactoredDocsList from "./components/RefactoredDocsList";
 import DocInfo from "./components/DocInfo";
@@ -8,7 +6,30 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import ShareDocument from "./components/shareDocument";
 
+import { useState, useEffect } from "react";
+
+import { socket } from './socket';
+// import { io } from 'socket.io-client';
+
+// let socket;
 function App() {
+  useEffect(() => {
+    // socket = io("http://localhost:8080");
+    socket.connect();
+
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id);
+    })
+
+    socket.on("disconnect", () => {
+      console.log("Socket disconnected");
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
   return (
     <Router>
       <div>
