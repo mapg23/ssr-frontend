@@ -4,7 +4,7 @@ import { EditorState } from '@codemirror/state';
 import { keymap } from '@codemirror/view';
 import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
-import { basicSetup } from 'codemirror'; // basicSetup is fine from codemirror
+import { basicSetup } from 'codemirror';
 import { autocompletion } from '@codemirror/autocomplete';
 
 const CodeEditor = ({ value, onChange }) => {
@@ -55,3 +55,4 @@ const CodeEditor = ({ value, onChange }) => {
 };
 
 export default CodeEditor;
+
