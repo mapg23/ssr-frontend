@@ -2,6 +2,29 @@ const documentURL = import.meta.env.VITE_DOC_URL
 
 const documentsObject = {
 
+    executeCode: async function (data) {
+        try {
+        const response = await fetch("https://execjs.emilfolino.se/code", {
+            method: "POST",
+            headers: {
+            "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+        }
+
+        const result = await response.json();
+        const decodedOutput = atob(result.data);
+        return decodedOutput;
+        } catch (error) {
+            console.error("Error executing code:", error);
+            return null;
+        }
+    },
+
     checkCookies: async function () {
         try {
             const response = await fetch(`${documentURL}check-cookies`, { credentials: 'include'});
