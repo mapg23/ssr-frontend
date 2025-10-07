@@ -9,6 +9,7 @@ import { autocompletion } from '@codemirror/autocomplete';
 
 const CodeEditor = ({ value, onChange }) => {
   const editorRef = useRef(null);
+
   const viewRef = useRef(null);
 
   useEffect(() => {
@@ -33,10 +34,8 @@ const CodeEditor = ({ value, onChange }) => {
       state,
       parent: editorRef.current,
     });
-
     return () => viewRef.current.destroy();
   }, [editorRef]);
-
 
     useEffect(() => {
     if (viewRef.current && value !== viewRef.current.state.doc.toString()) {

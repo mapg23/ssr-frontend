@@ -14,11 +14,11 @@ function ShareDocument() {
   const handleSumbition = async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    
+
     const createUserObject = {
       email: formData.get("email"),
     };
-    
+
     console.log(`id: ${id}, index: ${index}, obj: ${createUserObject}`);
     await documentsObject.shareDocument(id, index, createUserObject);
     navigate(`/ssr-frontend/${id}/${index}`);
