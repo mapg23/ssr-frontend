@@ -7,6 +7,8 @@ import CodeEditor from "./CodeEditor.jsx";
 
 import { socket } from "../socket.js";
 
+import CommentableViewer from "./CommentableViewer.jsx";
+
 function DocInfo() {
   const [document, setDocument] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,6 +21,15 @@ function DocInfo() {
   const editorString = editorState ? "Document" : "Editor";
   const docType = editorState ? "js" : "doc";
   const [codeResponse, setCodeResponse ] = useState("");
+  const [comments, setComments] = useState([]);
+
+
+function onAddCommentLocal(c) {
+  // c = { id, start, end, note }
+  const payload = { docId: `${id}/${index}`, ...c };
+  setComments(prev => [...prev, payload]);
+  socket.emit("add_comment", payload);
+}
 
   // This switches between editor and document;
   const handleEditorState = () => {
