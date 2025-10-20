@@ -1,0 +1,30 @@
+/* Ensures the toolbar content feels evenly spaced and centered */
+.toolbar-container {
+    max-width: 700px;
+    /* keeps the toolbar tight and centered */
+    margin: 0 auto;
+    /* centers horizontally */
+    padding: 12px 24px;
+    /* balanced vertical and horizontal space */
+    box-sizing: border-box;
+}
+
+/* Buttons uniform sizing (same as before) */
+.toolbar-btn {
+    min-width: 140px;
+    height: 46px;
+    padding: 10px 18px !important;
+    font-weight: 600;
+    border-width: 2px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover lift animation */
+.toolbar-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
