@@ -8,6 +8,7 @@ import CodeEditor from "./CodeEditor.jsx";
 import { socket } from "../socket.js";
 
 import ToolBar from "./ToolBar.jsx";
+import DocumentRenderer from "./DocumentRenderer.jsx";
 import CommentableViewer from "./CommentableViewer.jsx";
 
 function DocInfo() {
@@ -143,12 +144,11 @@ function DocInfo() {
           <h1 className="fw-bold mb-4 text-primary">{document.title} </h1>
 
           <div className="row g-4">
-            {/* Left Side - Editor Form */}
             <div className="col-md-6">
               {document && (
                 <form
                   onSubmit={handleSubmitButton}
-                  className="bg-light p-4 rounded-4 shadow-sm"
+                  className="bg-white border shadow-sm p-3 mb-4 gap-3 p-4 h-100 shadow-sm"
                 >
                   <ToolBar
                     handleCancelButton={handleCancelButton}
@@ -159,58 +159,41 @@ function DocInfo() {
                     editorState={editorState}
                   />
 
-                  {/* Title Input */}
-                  <div className="form-floating mb-3">
-                    <input
-                      type="text"
-                      name="title"
-                      id="title"
-                      className="form-control rounded-3"
-                      placeholder="Titel"
-                      value={document.title || ""}
-                      onChange={handleChange}
-                    />
-                    <label htmlFor="title">Titel</label>
-                  </div>
-
-                  {/* Content / Editor */}
-                  <div className="form-floating mb-3">
-                    {editorState ? (
-                      <CodeEditor
-                        value={document.content || ""}
-                        name="editor"
-                        id="editor"
-                        className="form-control rounded-3"
-                        onChange={handleChangeEditor}
-                      />
-                    ) : (
-                      <textarea
-                        name="content"
-                        id="content"
-                        className="form-control rounded-3"
-                        placeholder="Innehåll"
-                        rows="12"
-                        value={document.content || ""}
-                        onChange={handleChange}
-                        style={{ minHeight: "300px" }}
-                      />
-                    )}
-                    <label htmlFor="content">Innehåll</label>
-                  </div>
-
-                  {editorState && (
-                    <div className="form-group">
-                      <p className="text-muted">{codeResponse}</p>
-                    </div>
-                  )}
+                  <DocumentRenderer
+                    document={document}
+                    handleChange={handleChange}
+                    editorState={editorState}
+                    handleChangeEditor={handleChangeEditor}
+                  />
                 </form>
               )}
             </div>
 
             {/* Right Side - Secondary Box */}
             <div className="col-md-6">
-              <div className="bg-secondary text-white rounded-4 p-4 h-100 d-flex align-items-center justify-content-center shadow-sm">
-                <p className="fs-5 fw-semibold m-0">Right Side Box</p>
+              <div className="bg-white border shadow-sm p-3 mb-4 gap-3 p-4 h-100 shadow-sm">
+                {/* Code Response Box */}
+                {editorState && (
+                  <div className="bg-white border shadow-sm p-3 mb-4">
+                    <p className="mb-0 text-break">{codeResponse}</p>
+                  </div>
+                )}
+
+                {/* Comments Section */}
+                <div className="d-flex flex-column gap-3">
+                  {comments && comments.length > 0 ? (
+                    comments.map((comment, index) => (
+                      <div
+                        key={index}
+                        className="bg-light text-dark rounded-3 p-3 shadow-sm"
+                      >
+                        <p className="mb-0">{comment}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-muted fst-italic">No comments yet.</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>

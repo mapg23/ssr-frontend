@@ -7,7 +7,7 @@ function ToolBar({
   editorState,
 }) {
   return (
-    <div className="toolbar-container d-flex flex-row flex-wrap align-items-center justify-content-center bg-white border shadow-sm p-3 mb-4 gap-3 rounded-4">
+    <div className="toolbar-container d-flex flex-row flex-wrap align-items-center justify-content-center bg-white border shadow-sm p-3 mb-4 gap-3">
       <button
         className="btn btn-outline-secondary  toolbar-btn shadow-sm"
         type="submit"
