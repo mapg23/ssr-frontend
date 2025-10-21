@@ -12,23 +12,21 @@ import DocumentRenderer from "./DocumentRenderer.jsx";
 import CommentableViewer from "./CommentableViewer.jsx";
 
 function DocInfo() {
-  const [document, setDocument] = useState([]);
+  const [document, setDocument] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id, index } = useParams();
   const navigate = useNavigate();
 
   // Editor variables
-  const [editorState, setEditorState] = useState(false); // Boolean
+  const [editorState, setEditorState] = useState(false);
   const editorString = editorState ? "Document" : "Editor";
   const docType = editorState ? "js" : "doc";
   const [codeResponse, setCodeResponse] = useState("");
   const [comments, setComments] = useState([]);
 
-  function onAddCommentLocal(c) {
-    // c = { id, start, end, note }
-    const payload = { docId: `${id}/${index}`, ...c };
-    setComments((prev) => [...prev, payload]);
+  function onAddCommentLocal(payload) {
+    setComments(prev => [...prev, payload]);
     socket.emit("add_comment", payload);
   }
 
@@ -42,7 +40,7 @@ function DocInfo() {
       code: btoa(document.content),
     };
 
-    let res = documentsObject.executeCode(data);
+    let res = await documentsObject.executeCode(data);
     setCodeResponse(res);
   };
 
@@ -69,6 +67,7 @@ function DocInfo() {
     const updatedDoc = {
       title: formData.get("title"),
       content: formData.get("content"),
+      comments: comments
     };
 
     await documentsObject.updateDocumentByID(id, index, updatedDoc);
@@ -105,6 +104,7 @@ function DocInfo() {
       );
       if (documentFetchedData) {
         setDocument(documentFetchedData.data);
+        setComments(documentFetchedData.data?.comments || []);
       }
     } catch (e) {
       setError(e.message);
@@ -113,25 +113,48 @@ function DocInfo() {
     }
   }
 
-  async function handleSockets() {
+  function handleSockets() {
     socket.emit("join_room", { id: id, index: index });
 
     const handleUpdate = (update) => {
       setDocument(update);
+      if (update?.comments) {
+        setComments(update.comments)
+      };
+    };
+
+    const handleCommentAdded = (payload) => {
+      setComments((prev) =>
+        prev.some((c) => c.id === payload.clientId)
+            ? prev
+            : [
+              ...prev,
+              {
+                docId: `${id}/${index}`,
+                id: payload.clientId,
+                note: payload.note,
+                createdAt: payload.createdAt
+              }
+            ]
+      );
     };
 
     socket.on("doc_updated", handleUpdate);
+    socket.on("comment_added", handleCommentAdded);
 
     // Cleanup when leaving the page
     return () => {
       socket.off("doc_updated", handleUpdate);
+      socket.off("comment_added", handleCommentAdded);
     };
   }
 
   useEffect(() => {
     checkCookies();
     loadDocInfo();
-    handleSockets();
+    const cleanup = handleSockets();
+
+    return cleanup;
   }, [id, index]);
 
   if (loading) return <p>Loading doc's info...</p>;
@@ -165,6 +188,56 @@ function DocInfo() {
                     editorState={editorState}
                     handleChangeEditor={handleChangeEditor}
                   />
+                  {/* Title Input */}
+                  <div className="form-floating mb-3">
+                    <input
+                      type="text"
+                      name="title"
+                      id="title"
+                      className="form-control rounded-3"
+                      placeholder="Titel"
+                      value={document.title || ""}
+                      onChange={handleChange}
+                    />
+                    <label htmlFor="title">Titel</label>
+                  </div>
+
+                  {/* Content / Editor */}
+                    {editorState ? (
+                      <div className="form-floating mb-3">
+                          <CodeEditor
+                            value={document.content || ""}
+                            name="editor"
+                            id="editor"
+                            className="form-control rounded-3"
+                            onChange={handleChangeEditor}
+                          />
+                        <label htmlFor="editor">Innehåll</label>
+                      </div>
+                    ) : (
+                      <div className="mb-3">
+                        <label className="form-label d-block">Innehåll</label>
+                        <CommentableViewer
+                          text={document.content || ""}
+                          comments={comments}
+                          onSelectRange={() => {
+                            const note = window.prompt("Comment:");
+                            if (!note) {
+                              return
+                            };
+                            const payload = { docId: `${id}/${index}`, id: crypto.randomUUID(), note };
+
+                            onAddCommentLocal(payload);
+                          }}
+                        />
+                      </div>
+                    )}
+
+                  {editorState && (
+                    <div className="form-group">
+                      <p className="text-muted">{codeResponse}</p>
+                    </div>
+                  )}
                 </form>
               )}
             </div>
