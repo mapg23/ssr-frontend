@@ -221,7 +221,7 @@ function DocInfo() {
                           text={document.content || ""}
                           comments={comments}
                           onSelectRange={() => {
-                            const note = window.prompt("Comment:");
+                            const note = window.getSelection();
                             if (!note) {
                               return
                             };
@@ -260,7 +260,7 @@ function DocInfo() {
                         key={index}
                         className="bg-light text-dark rounded-3 p-3 shadow-sm"
                       >
-                        <p className="mb-0">{comment}</p>
+                        <p className="mb-0">{comment.note}</p>
                       </div>
                     ))
                   ) : (
