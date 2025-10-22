@@ -11,8 +11,19 @@ import ToolBar from "./ToolBar.jsx";
 import DocumentRenderer from "./DocumentRenderer.jsx";
 import CommentableViewer from "./CommentableViewer.jsx";
 
+
+function asDisplayString(value) {
+  if (value == null) return "";
+  if (typeof value === "string") return value;
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
 function DocInfo() {
-  const [document, setDocument] = useState({});
+  const [document, setDocument] = useState({ title: "", content: "" });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id, index } = useParams();
@@ -37,11 +48,13 @@ function DocInfo() {
 
   const handleExecuteCode = async () => {
     let data = {
-      code: btoa(document.content),
+      code: btoa(document.content || ""),
     };
 
     let res = await documentsObject.executeCode(data);
-    setCodeResponse(res);
+
+    console.log("res", res);
+    setCodeResponse(asDisplayString(res));
   };
 
   const handleChangeEditor = (code) => {
@@ -66,7 +79,7 @@ function DocInfo() {
 
     const updatedDoc = {
       title: formData.get("title"),
-      content: formData.get("content"),
+      content: document.content || "",
       comments: comments
     };
 
@@ -97,17 +110,20 @@ function DocInfo() {
 
   async function loadDocInfo() {
     try {
-      // Fetching
-      const documentFetchedData = await documentsObject.fetchDocumentByID(
-        id,
-        index
-      );
-      if (documentFetchedData) {
-        setDocument(documentFetchedData.data);
-        setComments(documentFetchedData.data?.comments || []);
+      const documentFetchedData = await documentsObject.fetchDocumentByID(id, index);
+      if (documentFetchedData?.data) {
+        const d = documentFetchedData.data;
+        setDocument({
+          title: asDisplayString(d.title) || "",
+          content: typeof d.content === "string" ? d.content : asDisplayString(d.content),
+        });
+        setComments(Array.isArray(d.comments) ? d.comments : []);
+      } else {
+        setDocument({ title: "", content: "" });
+        setComments([]);
       }
     } catch (e) {
-      setError(e.message);
+      setError(e?.message || String(e));
     } finally {
       setLoading(false);
     }
@@ -117,10 +133,14 @@ function DocInfo() {
     socket.emit("join_room", { id: id, index: index });
 
     const handleUpdate = (update) => {
-      setDocument(update);
-      if (update?.comments) {
-        setComments(update.comments)
-      };
+      // ✅ Defensive normalization on live updates
+      const safe = update || {};
+      setDocument({
+        title: asDisplayString(safe.title) || "",
+        content:
+          typeof safe.content === "string" ? safe.content : asDisplayString(safe.content),
+      });
+      if (Array.isArray(safe.comments)) setComments(safe.comments);
     };
 
     const handleCommentAdded = (payload) => {
@@ -221,7 +241,9 @@ function DocInfo() {
                           text={document.content || ""}
                           comments={comments}
                           onSelectRange={() => {
-                            const note = window.getSelection();
+                            const sel = window.getSelection();
+                            const seed = sel ? sel.toString() : "";
+                            const note = window.prompt("Comment:", seed);
                             if (!note) {
                               return
                             };
@@ -233,9 +255,9 @@ function DocInfo() {
                       </div>
                     )}
 
-                  {editorState && (
+                  {editorState && !!codeResponse && (
                     <div className="form-group">
-                      <p className="text-muted">{codeResponse}</p>
+                      <pre className="text-muted">{codeResponse}</pre>
                     </div>
                   )}
                 </form>
@@ -246,9 +268,9 @@ function DocInfo() {
             <div className="col-md-6">
               <div className="bg-white border shadow-sm p-3 mb-4 gap-3 p-4 h-100 shadow-sm">
                 {/* Code Response Box */}
-                {editorState && (
+                {editorState && !!codeResponse && (
                   <div className="bg-white border shadow-sm p-3 mb-4">
-                    <p className="mb-0 text-break">{codeResponse}</p>
+                    <pre className="mb-0 text-break">{codeResponse}</pre>
                   </div>
                 )}
 
@@ -260,7 +282,7 @@ function DocInfo() {
                         key={index}
                         className="bg-light text-dark rounded-3 p-3 shadow-sm"
                       >
-                        <p className="mb-0">{comment.note}</p>
+                        <p className="mb-0">{asDisplayString(comment?.note)}</p>
                       </div>
                     ))
                   ) : (
