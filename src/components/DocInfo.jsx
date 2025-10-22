@@ -13,8 +13,12 @@ import CommentableViewer from "./CommentableViewer.jsx";
 
 
 function asDisplayString(value) {
-  if (value == null) return "";
-  if (typeof value === "string") return value;
+  if (value == null) {
+    return ""
+  };
+  if (typeof value === "string") {
+    return value
+  };
   try {
     return JSON.stringify(value, null, 2);
   } catch {
@@ -36,10 +40,29 @@ function DocInfo() {
   const [codeResponse, setCodeResponse] = useState("");
   const [comments, setComments] = useState([]);
 
-  function onAddCommentLocal(payload) {
-    setComments(prev => [...prev, payload]);
-    socket.emit("add_comment", payload);
+
+async function persistComments(nextComments) {
+  try {
+    await documentsObject.updateDocumentByID(id, index, {
+      title: document.title || "",
+      content: document.content || "",
+      comments: nextComments,
+    });
+  } catch (e) {
+    console.error("Failed to persist comments:", e);
   }
+}
+
+function onAddCommentLocal(payload) {
+  // optimistic UI
+  setComments(prev => {
+    const next = [...prev, payload];
+    // fire-and-forget persistence
+    persistComments(next);
+    return next;
+  });
+  socket.emit("add_comment", payload);
+}
 
   // This switches between editor and document;
   const handleEditorState = () => {
@@ -133,7 +156,6 @@ function DocInfo() {
     socket.emit("join_room", { id: id, index: index });
 
     const handleUpdate = (update) => {
-      // ✅ Defensive normalization on live updates
       const safe = update || {};
       setDocument({
         title: asDisplayString(safe.title) || "",
@@ -153,6 +175,8 @@ function DocInfo() {
                 docId: `${id}/${index}`,
                 id: payload.clientId,
                 note: payload.note,
+                start: payload.start,
+                end: payload.end,
                 createdAt: payload.createdAt
               }
             ]
@@ -234,20 +258,25 @@ function DocInfo() {
                           />
                         <label htmlFor="editor">Innehåll</label>
                       </div>
-                    ) : (
+                      ) : (
                       <div className="mb-3">
                         <label className="form-label d-block">Innehåll</label>
                         <CommentableViewer
                           text={document.content || ""}
                           comments={comments}
-                          onSelectRange={() => {
-                            const sel = window.getSelection();
-                            const seed = sel ? sel.toString() : "";
-                            const note = window.prompt("Comment:", seed);
+                          onSelectRange={({ start, end }) => {
+                            const base = document.content || "";
+                            const note = window.prompt("Comment:", base.slice(start, end));
                             if (!note) {
                               return
                             };
-                            const payload = { docId: `${id}/${index}`, id: crypto.randomUUID(), note };
+                            const payload = { 
+                              docId: `${id}/${index}`,
+                              id: crypto.randomUUID(),
+                              note,
+                              start,
+                              end
+                            };
 
                             onAddCommentLocal(payload);
                           }}
