@@ -265,8 +265,7 @@ function onAddCommentLocal(payload) {
                           text={document.content || ""}
                           comments={comments}
                           onSelectRange={({ start, end }) => {
-                            const base = document.content || "";
-                            const note = window.getSelection("Comment:", base.slice(start, end));
+                            const note = window.prompt("Comment:");
                             if (!note) {
                               return
                             };
