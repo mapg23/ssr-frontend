@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import CodeEditor from "./CodeEditor.jsx";
-
 import { socket } from "../socket.js";
 
 import ToolBar from "./ToolBar.jsx";
@@ -12,35 +11,34 @@ import DocumentRenderer from "./DocumentRenderer.jsx";
 import CommentableViewer from "./CommentableViewer.jsx";
 
 function DocInfo() {
-  const [document, setDocument] = useState({});
+  const [document, setDocument] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id, index } = useParams();
   const navigate = useNavigate();
 
   // Editor variables
-  const [editorState, setEditorState] = useState(false);
+  const [editorState, setEditorState] = useState(false); // Boolean
   const editorString = editorState ? "Document" : "Editor";
   const docType = editorState ? "js" : "doc";
   const [codeResponse, setCodeResponse] = useState("");
   const [comments, setComments] = useState([]);
 
-  function onAddCommentLocal(payload) {
-    setComments(prev => [...prev, payload]);
+  // Local add comment handler
+  function onAddCommentLocal(c) {
+    const payload = { docId: `${id}/${index}`, ...c };
+    setComments((prev) => [...prev, payload]);
     socket.emit("add_comment", payload);
   }
 
-  // This switches between editor and document;
+  // Toggle editor/document
   const handleEditorState = () => {
     setEditorState((prev) => !prev);
   };
 
   const handleExecuteCode = async () => {
-    let data = {
-      code: btoa(document.content),
-    };
-
-    let res = await documentsObject.executeCode(data);
+    let data = { code: btoa(document.content) };
+    let res = documentsObject.executeCode(data);
     setCodeResponse(res);
   };
 
@@ -67,7 +65,6 @@ function DocInfo() {
     const updatedDoc = {
       title: formData.get("title"),
       content: formData.get("content"),
-      comments: comments
     };
 
     await documentsObject.updateDocumentByID(id, index, updatedDoc);
@@ -76,10 +73,9 @@ function DocInfo() {
 
   // Handle typing locally
   const handleChange = (e) => {
-    const { name, value } = e.target; // name="title" or "content"
+    const { name, value } = e.target;
     setDocument((prev) => ({ ...prev, [name]: value }));
 
-    // Emit update to server
     socket.emit("update_doc", {
       id: `${id}/${index}`,
       data: { ...document, [name]: value, doc_type: docType },
@@ -87,7 +83,6 @@ function DocInfo() {
   };
 
   async function checkCookies() {
-    // cookies
     const cookies = await documentsObject.checkCookies();
     if (!cookies.authorized) {
       navigate("/ssr-frontend/login");
@@ -97,14 +92,9 @@ function DocInfo() {
 
   async function loadDocInfo() {
     try {
-      // Fetching
-      const documentFetchedData = await documentsObject.fetchDocumentByID(
-        id,
-        index
-      );
+      const documentFetchedData = await documentsObject.fetchDocumentByID(id, index);
       if (documentFetchedData) {
         setDocument(documentFetchedData.data);
-        setComments(documentFetchedData.data?.comments || []);
       }
     } catch (e) {
       setError(e.message);
@@ -113,48 +103,25 @@ function DocInfo() {
     }
   }
 
-  function handleSockets() {
+  async function handleSockets() {
     socket.emit("join_room", { id: id, index: index });
 
     const handleUpdate = (update) => {
       setDocument(update);
-      if (update?.comments) {
-        setComments(update.comments)
-      };
-    };
-
-    const handleCommentAdded = (payload) => {
-      setComments((prev) =>
-        prev.some((c) => c.id === payload.clientId)
-            ? prev
-            : [
-              ...prev,
-              {
-                docId: `${id}/${index}`,
-                id: payload.clientId,
-                note: payload.note,
-                createdAt: payload.createdAt
-              }
-            ]
-      );
     };
 
     socket.on("doc_updated", handleUpdate);
-    socket.on("comment_added", handleCommentAdded);
 
-    // Cleanup when leaving the page
+    // Cleanup
     return () => {
       socket.off("doc_updated", handleUpdate);
-      socket.off("comment_added", handleCommentAdded);
     };
   }
 
   useEffect(() => {
     checkCookies();
     loadDocInfo();
-    const cleanup = handleSockets();
-
-    return cleanup;
+    handleSockets();
   }, [id, index]);
 
   if (loading) return <p>Loading doc's info...</p>;
@@ -164,7 +131,7 @@ function DocInfo() {
     <>
       <div className="container py-5">
         <div className="bg-white shadow-lg rounded-4 p-4">
-          <h1 className="fw-bold mb-4 text-primary">{document.title} </h1>
+          <h1 className="fw-bold mb-4 text-primary">{document.title}</h1>
 
           <div className="row g-4">
             <div className="col-md-6">
@@ -188,6 +155,7 @@ function DocInfo() {
                     editorState={editorState}
                     handleChangeEditor={handleChangeEditor}
                   />
+
                   {/* Title Input */}
                   <div className="form-floating mb-3">
                     <input
@@ -195,63 +163,44 @@ function DocInfo() {
                       name="title"
                       id="title"
                       className="form-control rounded-3"
-                      placeholder="Titel"
+                      placeholder="Title"
                       value={document.title || ""}
                       onChange={handleChange}
                     />
-                    <label htmlFor="title">Titel</label>
+                    <label htmlFor="title">Title</label>
                   </div>
 
                   {/* Content / Editor */}
-                    {editorState ? (
-                      <div className="form-floating mb-3">
-                          <CodeEditor
-                            value={document.content || ""}
-                            name="editor"
-                            id="editor"
-                            className="form-control rounded-3"
-                            onChange={handleChangeEditor}
-                          />
-                        <label htmlFor="editor">Innehåll</label>
-                      </div>
-                    ) : (
-                      <div className="mb-3">
-                        <label className="form-label d-block">Innehåll</label>
-                        <CommentableViewer
-                          text={document.content || ""}
-                          comments={comments}
-<<<<<<< HEAD
-                          onSelectRange={({ start, end }) => {
-<<<<<<< HEAD
-                            const note = window.prompt("Comment:");
-=======
-                            const base = document.content || "";
-                            const note = window.prompt("Comment:", base.slice(start, end));
->>>>>>> parent of 2a82c3d (comment functionality almost done, 2 problems left)
-=======
-                          onSelectRange={() => {
-<<<<<<< HEAD
-<<<<<<< HEAD
-                            const sel = window.getSelection();
-                            const seed = sel ? sel.toString() : "";
-                            const note = window.prompt("Comment:", seed);
->>>>>>> parent of 827f05c (The comment functionality is done!)
-=======
-                            const note = window.getSelection();
->>>>>>> parent of 97a0ee2 (Bugs have been fixed)
-=======
-                            const note = window.prompt("Comment:");
->>>>>>> parent of bcb4a72 (Bug fixed)
-                            if (!note) {
-                              return
-                            };
-                            const payload = { docId: `${id}/${index}`, id: crypto.randomUUID(), note };
-
-                            onAddCommentLocal(payload);
-                          }}
-                        />
-                      </div>
-                    )}
+                  {editorState ? (
+                    <div className="form-floating mb-3">
+                      <CodeEditor
+                        value={document.content || ""}
+                        name="editor"
+                        id="editor"
+                        className="form-control rounded-3"
+                        onChange={handleChangeEditor}
+                      />
+                      <label htmlFor="editor">Content</label>
+                    </div>
+                  ) : (
+                    <div className="mb-3">
+                      <label className="form-label d-block">Content</label>
+                      <CommentableViewer
+                        text={document.content || ""}
+                        comments={comments}
+                        onSelectRange={({ start, end }) => {
+                          const note = window.prompt("Comment:");
+                          if (!note) return;
+                          const payload = {
+                            docId: `${id}/${index}`,
+                            id: crypto.randomUUID(),
+                            note,
+                          };
+                          onAddCommentLocal(payload);
+                        }}
+                      />
+                    </div>
+                  )}
 
                   {editorState && (
                     <div className="form-group">
@@ -262,17 +211,15 @@ function DocInfo() {
               )}
             </div>
 
-            {/* Right Side - Secondary Box */}
+            {/* Right Side - Comments & Code Output */}
             <div className="col-md-6">
               <div className="bg-white border shadow-sm p-3 mb-4 gap-3 p-4 h-100 shadow-sm">
-                {/* Code Response Box */}
                 {editorState && (
                   <div className="bg-white border shadow-sm p-3 mb-4">
                     <p className="mb-0 text-break">{codeResponse}</p>
                   </div>
                 )}
 
-                {/* Comments Section */}
                 <div className="d-flex flex-column gap-3">
                   {comments && comments.length > 0 ? (
                     comments.map((comment, index) => (
@@ -280,7 +227,7 @@ function DocInfo() {
                         key={index}
                         className="bg-light text-dark rounded-3 p-3 shadow-sm"
                       >
-                        <p className="mb-0">{comment}</p>
+                        <p className="mb-0">{comment.note}</p>
                       </div>
                     ))
                   ) : (
