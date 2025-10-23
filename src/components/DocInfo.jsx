@@ -8,10 +8,9 @@ import { socket } from "../socket.js";
 
 import ToolBar from "./ToolBar.jsx";
 import DocumentRenderer from "./DocumentRenderer.jsx";
-import CommentableViewer from "./CommentableViewer.jsx";
 
 function DocInfo() {
-  const [document, setDocument] = useState([]);
+  const [document, setDocument] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { id, index } = useParams();
@@ -20,21 +19,45 @@ function DocInfo() {
   // Editor variables
   const [editorState, setEditorState] = useState(false); // Boolean
   const editorString = editorState ? "Document" : "Editor";
+  
   const docType = editorState ? "js" : "doc";
   const [codeResponse, setCodeResponse] = useState("");
+
   const [comments, setComments] = useState([]);
 
-  // Local add comment handler
-  function onAddCommentLocal(c) {
-    const payload = { docId: `${id}/${index}`, ...c };
-    setComments((prev) => [...prev, payload]);
-    socket.emit("add_comment", payload);
+const handleCommentsUpdate = () => {
+  console.log("ARRAY: ", comments);
+};
+
+const removeComment = (idToRemove) => {
+  setComments((prevComments) => {
+    const updated = prevComments.filter((comment) => comment.id !== idToRemove);
+    socket.emit("update_comments", {
+      id: `${id}/${index}`,
+      data: updated,
+    });
+    return updated;
+  });
+
+  // cleanup highlight
+  const span = window.document.querySelector(`span[data-id="${idToRemove}"]`);
+  if (span) span.replaceWith(window.document.createTextNode(span.textContent));
+};
+
+const handleEditorState = () => {
+  const contentDiv = window.document.getElementById("content");
+
+  // Save the contentEditable’s HTML before switching away
+  if (contentDiv && !editorState) {
+    setDocument((prev) => ({
+      ...prev,
+      content: contentDiv.innerHTML,
+    }));
   }
 
-  // Toggle editor/document
-  const handleEditorState = () => {
-    setEditorState((prev) => !prev);
-  };
+  setEditorState((prev) => !prev);
+};
+
 
   const handleExecuteCode = async () => {
     let data = { code: btoa(document.content) };
@@ -110,11 +133,16 @@ function DocInfo() {
       setDocument(update);
     };
 
-    socket.on("doc_updated", handleUpdate);
+    const handleCommentUpdate = (update) => {
+      setComments(update);
+    };
 
+    socket.on("doc_updated", handleUpdate);
+    socket.on("comments_updated", handleCommentUpdate);
     // Cleanup
     return () => {
       socket.off("doc_updated", handleUpdate);
+      socket.off("comments_updated", handleCommentUpdate);
     };
   }
 
@@ -154,59 +182,12 @@ function DocInfo() {
                     handleChange={handleChange}
                     editorState={editorState}
                     handleChangeEditor={handleChangeEditor}
+                    comments={comments}
+                    setComments={setComments}
+                    handleCommentsUpdate={handleCommentsUpdate}
+                    id={id}
+                    index={index}
                   />
-
-                  {/* Title Input */}
-                  <div className="form-floating mb-3">
-                    <input
-                      type="text"
-                      name="title"
-                      id="title"
-                      className="form-control rounded-3"
-                      placeholder="Title"
-                      value={document.title || ""}
-                      onChange={handleChange}
-                    />
-                    <label htmlFor="title">Title</label>
-                  </div>
-
-                  {/* Content / Editor */}
-                  {editorState ? (
-                    <div className="form-floating mb-3">
-                      <CodeEditor
-                        value={document.content || ""}
-                        name="editor"
-                        id="editor"
-                        className="form-control rounded-3"
-                        onChange={handleChangeEditor}
-                      />
-                      <label htmlFor="editor">Content</label>
-                    </div>
-                  ) : (
-                    <div className="mb-3">
-                      <label className="form-label d-block">Content</label>
-                      <CommentableViewer
-                        text={document.content || ""}
-                        comments={comments}
-                        onSelectRange={({ start, end }) => {
-                          const note = window.prompt("Comment:");
-                          if (!note) return;
-                          const payload = {
-                            docId: `${id}/${index}`,
-                            id: crypto.randomUUID(),
-                            note,
-                          };
-                          onAddCommentLocal(payload);
-                        }}
-                      />
-                    </div>
-                  )}
-
-                  {editorState && (
-                    <div className="form-group">
-                      <p className="text-muted">{codeResponse}</p>
-                    </div>
-                  )}
                 </form>
               )}
             </div>
@@ -216,10 +197,11 @@ function DocInfo() {
               <div className="bg-white border shadow-sm p-3 mb-4 gap-3 p-4 h-100 shadow-sm">
                 {editorState && (
                   <div className="bg-white border shadow-sm p-3 mb-4">
-                    <p className="mb-0 text-break">{codeResponse}</p>
+                    <p className="mb-0 text-break"> &gt; {codeResponse}</p>
                   </div>
                 )}
 
+                {/* Comments Section */}
                 <div className="d-flex flex-column gap-3">
                   {comments && comments.length > 0 ? (
                     comments.map((comment, index) => (
@@ -227,15 +209,23 @@ function DocInfo() {
                         key={index}
                         className="bg-light text-dark rounded-3 p-3 shadow-sm"
                       >
-                        <p className="mb-0">{comment.note}</p>
+                        <p className="mb-0">{comment.text}</p>
+                        {comment.note && <p className="mb-0">{comment.note}</p>}
+
+                      <button
+                        className="btn btn-outline-secondary  toolbar-btn shadow-sm"
+                        onClick={() => removeComment(comment.id)}
+                      >
+                        <i className="bi bi-save me-2"></i> Ta bort
+                      </button>
                       </div>
                     ))
                   ) : (
-                    <p className="text-muted fst-italic">No comments yet.</p>
+                    <p className="text-muted">No comments yet.</p>
                   )}
                 </div>
-              </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
