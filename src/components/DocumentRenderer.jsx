@@ -69,7 +69,6 @@ function DocumentRenderer({
           },
         ];
 
-        // 🔥 Emit socket update here
         socket.emit("update_comments", {
           id: `${id}/${index}`,
           data: updated,

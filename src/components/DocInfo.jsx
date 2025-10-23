@@ -3,11 +3,11 @@ import documentsObject from "../models/document.js";
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
-import CodeEditor from "./CodeEditor.jsx";
 import { socket } from "../socket.js";
 
 import ToolBar from "./ToolBar.jsx";
 import DocumentRenderer from "./DocumentRenderer.jsx";
+import CommentCard from "./CommentCard.jsx";
 
 function DocInfo() {
   const [document, setDocument] = useState({});
@@ -26,7 +26,7 @@ function DocInfo() {
   const [comments, setComments] = useState([]);
 
 const handleCommentsUpdate = () => {
-  console.log("ARRAY: ", comments);
+  // DONT REMOVE FUNCTION
 };
 
 const removeComment = (idToRemove) => {
@@ -201,29 +201,10 @@ const handleEditorState = () => {
                   </div>
                 )}
 
-                {/* Comments Section */}
-                <div className="d-flex flex-column gap-3">
-                  {comments && comments.length > 0 ? (
-                    comments.map((comment, index) => (
-                      <div
-                        key={index}
-                        className="bg-light text-dark rounded-3 p-3 shadow-sm"
-                      >
-                        <p className="mb-0">{comment.text}</p>
-                        {comment.note && <p className="mb-0">{comment.note}</p>}
-
-                      <button
-                        className="btn btn-outline-secondary  toolbar-btn shadow-sm"
-                        onClick={() => removeComment(comment.id)}
-                      >
-                        <i className="bi bi-save me-2"></i> Ta bort
-                      </button>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-muted">No comments yet.</p>
-                  )}
-                </div>
+                <CommentCard 
+                  comments={comments}
+                  removeComment={removeComment}
+                />
             </div>
           </div>
           </div>
