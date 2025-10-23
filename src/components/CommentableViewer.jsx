@@ -1,18 +1,6 @@
 // src/components/CommentableViewer.jsx
 import { useEffect, useMemo, useRef } from "react";
 
-
-function getSelectionRect() {
-  const sel = window.getSelection();
-  if (!sel || sel.rangeCount === 0) return null;
-  const rect = sel.getRangeAt(0).getBoundingClientRect();
-  return { top: rect.top + window.scrollY, left: rect.left + window.scrollX };
-}
-
-// const rect = getSelectionRect();
-// onSelectRange?.({ start, end, rect }); // include rect so we can place the popover
-
-
 function renderWithHighlights(text, comments) {
   if (!text) return null;
 

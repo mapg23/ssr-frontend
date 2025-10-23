@@ -265,7 +265,12 @@ function onAddCommentLocal(payload) {
                           text={document.content || ""}
                           comments={comments}
                           onSelectRange={({ start, end }) => {
+<<<<<<< HEAD
                             const note = window.prompt("Comment:");
+=======
+                            const base = document.content || "";
+                            const note = window.prompt("Comment:", base.slice(start, end));
+>>>>>>> parent of 2a82c3d (comment functionality almost done, 2 problems left)
                             if (!note) {
                               return
                             };
