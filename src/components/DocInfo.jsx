@@ -231,6 +231,7 @@ function DocInfo() {
 =======
                           onSelectRange={() => {
 <<<<<<< HEAD
+<<<<<<< HEAD
                             const sel = window.getSelection();
                             const seed = sel ? sel.toString() : "";
                             const note = window.prompt("Comment:", seed);
@@ -238,6 +239,9 @@ function DocInfo() {
 =======
                             const note = window.getSelection();
 >>>>>>> parent of 97a0ee2 (Bugs have been fixed)
+=======
+                            const note = window.prompt("Comment:");
+>>>>>>> parent of bcb4a72 (Bug fixed)
                             if (!note) {
                               return
                             };
@@ -276,7 +280,7 @@ function DocInfo() {
                         key={index}
                         className="bg-light text-dark rounded-3 p-3 shadow-sm"
                       >
-                        <p className="mb-0">{comment.note}</p>
+                        <p className="mb-0">{comment}</p>
                       </div>
                     ))
                   ) : (
