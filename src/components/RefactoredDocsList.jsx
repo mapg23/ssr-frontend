@@ -38,7 +38,7 @@ const displaySharedDetails = (item, index) => {
         const result = documentFetchedData?.data?.result;
         const sharedResults = documentFetchedData?.data.sharedResult;
 
-        console.log(sharedResults);
+        console.log(sharedResults[0]);
 
         if (sharedResults) {
           setSharedDocuments(sharedResults);
