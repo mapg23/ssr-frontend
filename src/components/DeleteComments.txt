@@ -1,6 +1,0 @@
-In order to delete a comment direct form the CLI:
-
-db.docs.updateOne(
-  { email: "mohamedbnshi@gmail.com", "docs.title": "Mo testar ghghh ds" },
-  { $pull: { "docs.$.comments": { _id: ObjectId("68f829cef43476492bc21e6e") } } }
-);
