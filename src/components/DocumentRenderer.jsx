@@ -16,6 +16,13 @@ function DocumentRenderer({
   index
 }) {
   const contentRef = useRef(null);
+  const selectionTimer = useRef(null);
+
+  const [popover, setPopover] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+  });
 
   const onChange = (event, handleChange, contentRef, setComments, id, index) => {
     event.preventDefault();
@@ -90,6 +97,35 @@ function DocumentRenderer({
     }
   }
 
+  const handleSelection = () => {
+    if (selectionTimer.current) {
+      clearTimeout(selectionTimer.current);
+    }
+    selectionTimer.current = setTimeout(() => {
+      const selectedText = window.getSelection();
+
+      if (!selectedText.rangeCount) {
+        setPopover({ visible: false, x: 0, y: 0 });
+        return;
+      }
+
+      if (contentRef.current) {
+        const selectedTextString = selectedText.toString();
+
+        console.log("User is selecting:", selectedTextString);
+        const range = selectedText.getRangeAt(0);
+
+        const rect = range.getBoundingClientRect();
+
+        setPopover({
+          visible: true,
+          x: rect.x + rect.width / 2, // Center of the selection
+          y: rect.y, // Top of the selection
+        });
+      }
+    }, 500);
+  };
+
   useEffect(() => {
     if (!contentRef.current) return;
 
@@ -117,16 +153,16 @@ function DocumentRenderer({
     }
   }, [comments]);
 
-  useEffect(() => {
-    if (!contentRef.current) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!contentRef.current) {
+  //     return;
+  //   }
 
-    const current = contentRef.current.innerHTML;
-    if (current !== document.content) {
-      contentRef.current.innerHTML = document.content || "";
-    }
-  }, [document.content]);
+  //   const current = contentRef.current.innerHTML;
+  //   if (current !== document.content) {
+  //     contentRef.current.innerHTML = document.content || "";
+  //   }
+  // }, [document.content]);
 
 
   useEffect(() => {
@@ -138,6 +174,22 @@ function DocumentRenderer({
       contentRef.current.innerHTML = document.content;
     }
   }, [document.content, editorState]);
+
+  useEffect(() => {
+    if (!contentRef.current) {
+      return;
+    }
+    window.document.addEventListener("selectionchange", handleSelection);
+
+    return () => {
+      window.document.removeEventListener("selectionchange", handleSelection);
+      if (selectionTimer.current) {
+        clearTimeout(selectionTimer.current);
+      }
+    };
+  }, []);
+
+
 
   return (
     <>
@@ -181,6 +233,26 @@ function DocumentRenderer({
             }}
           />
           <label htmlFor="content">Innehåll</label>
+
+          {popover.visible && (
+            <div
+              style={{
+                position: "fixed", // Floats on top of everything
+                left: `${popover.x}px`,
+                top: `${popover.y}px`,
+                transform: "translate(-50%, -110%)", // Centers it *above* the cursor
+                backgroundColor: "#333",
+                color: "white",
+                padding: "5px 10px",
+                borderRadius: "5px",
+                zIndex: 1000,
+                cursor: "pointer",
+              }}
+              onMouseDown={(e) => e.preventDefault()} // Prevents click from deselecting text
+            >
+              Add Comment! 💬
+            </div>
+          )}
         </>
         )}
       </div>
