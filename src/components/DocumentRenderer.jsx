@@ -122,12 +122,15 @@ function DocumentRenderer({
           x: rect.x + rect.width / 2, // Center of the selection
           y: rect.y, // Top of the selection
         });
+        setPopover.addEventListener("click", handleIconClick)
       }
     }, 500);
   };
 
   useEffect(() => {
-    if (!contentRef.current) return;
+    if (!contentRef.current) {
+      return
+    };
 
     // Find all spans that represent comments
     const spanElements = contentRef.current.querySelectorAll("span[data-id]");
@@ -166,9 +169,6 @@ function DocumentRenderer({
 
 
   useEffect(() => {
-    if (!contentRef.current) {
-      return;
-    }
     const current = contentRef.current.innerHTML;
     if (document.content && current !== document.content) {
       contentRef.current.innerHTML = document.content;
