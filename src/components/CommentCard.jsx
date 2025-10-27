@@ -26,6 +26,7 @@ function CommentCard({
                                 className="form-control rounded-3"
                                 placeholder="Titel"
                                 value={comment.text || ""}
+                                readOnly
                             />
                             <label htmlFor="title">Titel</label>
                         </div>
