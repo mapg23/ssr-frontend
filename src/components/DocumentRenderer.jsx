@@ -24,6 +24,13 @@ function DocumentRenderer({
     y: 0,
   });
 
+  const [prompt, setPrompt] = useState({
+    visible: false,
+    text: "",
+    range: null,
+    selectedText: ""
+  });
+
   const onChange = (event, handleChange, contentRef, setComments, id, index) => {
     event.preventDefault();
 
@@ -97,8 +104,40 @@ function DocumentRenderer({
     }
   }
 
+
+const handleSaveComment = (e) => {
+  e?.preventDefault();
+  const text = (prompt.text || "").trim();
+  if (!text) {
+    return
+  };
+
+  setComments(prev => [
+    ...prev,
+    { id: crypto.randomUUID(), text }
+  ]);
+
+  setPrompt({ visible: false, text: "", range: null });
+};
+
+
   const handleIconClick = (event) => {
-    onChange(event, handleChange, contentRef, setComments, id, index);
+    event.preventDefault(); 
+
+    const selected = window.getSelection();
+    if (!selected.rangeCount) {
+      return
+    };
+
+    const selectedText = selected.toString();
+    const range = selected.getRangeAt(0);
+
+    setPrompt({
+      visible: true,
+      text: "", // Clear any old text
+      range: range,
+      selectedText: selectedText
+    });
     setPopover({ visible: false, x: 0, y: 0 });
     console.log("icon clicked" );
   }
@@ -257,6 +296,46 @@ function DocumentRenderer({
               onClick={handleIconClick}
             >
               Add Comment! 💬
+            </div>
+          )}
+
+          {prompt.visible && (
+            <div 
+              style={{
+                position: 'fixed',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'white',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                padding: '20px',
+                zIndex: 2000,
+                width: '300px'
+              }}
+            >
+              <h5 style={{ marginTop: 0 }}>Add Comment</h5>
+              <textarea
+                value={prompt.text}
+                onChange={(e) => setPrompt(p => ({ ...p, text: e.target.value }))}
+                autoFocus
+                style={{ width: '100%', minHeight: '80px', boxSizing: 'border-box' }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '15px' }}>
+                <button 
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => setPrompt({ visible: false, text: "", range: null, selectedText: "" })}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="btn btn-primary btn-sm"
+                  onClick={() => handleSaveComment()}
+                >
+                  Save
+                </button>
+              </div>
             </div>
           )}
         </>
