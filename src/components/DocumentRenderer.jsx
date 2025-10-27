@@ -46,7 +46,10 @@ function DocumentRenderer({
 const handleSaveComment = (e) => {
   e?.preventDefault();
   const note = (prompt.text || "").trim();
-  if (!note || !prompt.range) return;
+  if (!note || !prompt.range || prompt.range.collapsed 
+    || !prompt.selectedText?.trim()) {
+      return
+    };
 
   const commentId = crypto.randomUUID();
 
@@ -104,6 +107,11 @@ const handleSaveComment = (e) => {
 
     const selectedText = selected.toString();
     const range = selected.getRangeAt(0);
+
+    if (range.collapsed || !contentRef.current?.contains(range.commonAncestorContainer) 
+      || !selected.toString().trim()) {
+      return
+    };
 
     setPrompt({
       visible: true,
@@ -304,6 +312,12 @@ const handleSaveComment = (e) => {
                 <button 
                   className="btn btn-primary btn-sm"
                   onClick={() => handleSaveComment()}
+                  disabled={
+                    !prompt.text?.trim() ||
+                    !prompt.range ||
+                    (prompt.range && prompt.range.collapsed) ||
+                    !prompt.selectedText?.trim()
+                  }
                 >
                   Save
                 </button>
