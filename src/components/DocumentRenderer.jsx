@@ -97,6 +97,12 @@ function DocumentRenderer({
     }
   }
 
+  const handleIconClick = (event) => {
+    onChange(event, handleChange, contentRef, setComments, id, index);
+    setPopover({ visible: false, x: 0, y: 0 });
+    console.log("icon clicked" );
+  }
+
   const handleSelection = () => {
     if (selectionTimer.current) {
       clearTimeout(selectionTimer.current);
@@ -122,7 +128,6 @@ function DocumentRenderer({
           x: rect.x + rect.width / 2, // Center of the selection
           y: rect.y, // Top of the selection
         });
-        setPopover.addEventListener("click", handleIconClick)
       }
     }, 500);
   };
@@ -237,10 +242,10 @@ function DocumentRenderer({
           {popover.visible && (
             <div
               style={{
-                position: "fixed", // Floats on top of everything
+                position: "fixed",
                 left: `${popover.x}px`,
                 top: `${popover.y}px`,
-                transform: "translate(-50%, -110%)", // Centers it *above* the cursor
+                transform: "translate(-50%, -110%)",
                 backgroundColor: "#333",
                 color: "white",
                 padding: "5px 10px",
@@ -248,7 +253,8 @@ function DocumentRenderer({
                 zIndex: 1000,
                 cursor: "pointer",
               }}
-              onMouseDown={(e) => e.preventDefault()} // Prevents click from deselecting text
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={handleIconClick}
             >
               Add Comment! 💬
             </div>
