@@ -118,7 +118,9 @@ function DocumentRenderer({
   }, [comments]);
 
   useEffect(() => {
-    if (!contentRef.current) return;
+    if (!contentRef.current) {
+      return;
+    }
 
     const current = contentRef.current.innerHTML;
     if (current !== document.content) {
@@ -128,14 +130,14 @@ function DocumentRenderer({
 
 
   useEffect(() => {
-    if (!contentRef.current) return;
+    if (!contentRef.current) {
+      return;
+    }
     const current = contentRef.current.innerHTML;
     if (document.content && current !== document.content) {
       contentRef.current.innerHTML = document.content;
     }
   }, [document.content, editorState]);
-
-
 
   return (
     <>
@@ -170,7 +172,7 @@ function DocumentRenderer({
             className="form-control rounded-3"
             contentEditable
             suppressContentEditableWarning
-            ref={contentRef}
+            ref={contentRef} //ref is just React's safe & reliable way of giving you the DOM object.
             onContextMenu={(e) => onChange(e, handleChange, contentRef, setComments, id, index)}
             onInput={() => UpdateDocument()}
             style={{
