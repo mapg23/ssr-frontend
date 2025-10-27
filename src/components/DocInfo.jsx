@@ -25,23 +25,31 @@ function DocInfo() {
 
   const [comments, setComments] = useState([]);
 
-const handleCommentsUpdate = () => {
-  // DONT REMOVE FUNCTION
-};
+  const handleCommentsUpdate = () => {
+    // DONT REMOVE FUNCTION
+  };
 
-const removeComment = (idToRemove) => {
-  setComments((prevComments) => {
-    const updated = prevComments.filter((comment) => comment.id !== idToRemove);
-    socket.emit("update_comments", {
-      id: `${id}/${index}`,
-      data: updated,
+  const removeComment = (idToRemove) => {
+    setComments((prevComments) => {
+      const updated = prevComments.filter((comment) => comment.id !== idToRemove);
+      socket.emit("update_comments", {
+        id: `${id}/${index}`,
+        data: { comments: updated },
+      });
+      return updated;
     });
-    return updated;
-  });
 
-  // cleanup highlight
   const span = window.document.querySelector(`span[data-id="${idToRemove}"]`);
-  if (span) span.replaceWith(window.document.createTextNode(span.textContent));
+  if (span) {
+    span.replaceWith(window.document.createTextNode(span.textContent));
+    // persist edited HTML back to document state (same shape your editor uses)
+    const contentDiv = window.document.getElementById("content");
+    if (contentDiv) {
+      handleChange({
+        target: { name: "content", value: contentDiv.innerHTML },
+      });
+    }
+  }
 };
 
 const handleEditorState = () => {

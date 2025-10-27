@@ -31,68 +31,6 @@ function DocumentRenderer({
     selectedText: ""
   });
 
-  const onChange = (event, handleChange, contentRef, setComments, id, index) => {
-    event.preventDefault();
-
-    const selected = window.getSelection();
-    if (!selected.rangeCount) return;
-    const selectedText = selected.toString();
-    if (!selectedText.trim()) return;
-
-    const range = selected.getRangeAt(0);
-    const comment_id = Date.now(); // unique ID instead of index-based
-
-    const span = window.document.createElement("span");
-    span.textContent = selectedText;
-    span.style.backgroundColor = "#ffeb3b";
-    span.style.cursor = "pointer";
-    span.dataset.id = comment_id;
-
-    range.deleteContents();
-    range.insertNode(span);
-    selected.removeAllRanges();
-
-    const space = window.document.createTextNode("\u200B");
-    span.parentNode.insertBefore(space, span.nextSibling);
-
-    const newRange = window.document.createRange();
-    newRange.setStartAfter(space);
-    newRange.collapse(true);
-    selected.removeAllRanges();
-    selected.addRange(newRange);
-
-    if (contentRef.current) {
-      handleChange({
-        target: {
-          name: "content",
-          value: contentRef.current.innerHTML,
-        },
-      });
-    }
-
-    setTimeout(() => {
-      setComments((prev) => {
-        const updated = [
-          ...prev,
-          {
-            id: comment_id,
-            text: selectedText,
-            start: range.startOffset,
-            end: range.endOffset,
-            color: "#ffeb3b",
-          },
-        ];
-
-        socket.emit("update_comments", {
-          id: `${id}/${index}`,
-          data: updated,
-        });
-
-        return updated;
-      });
-    }, 0);
-  };
-
   const UpdateDocument = () => {
     if (contentRef.current) {
       handleChange({
@@ -107,19 +45,54 @@ function DocumentRenderer({
 
 const handleSaveComment = (e) => {
   e?.preventDefault();
-  const text = (prompt.text || "").trim();
-  if (!text) {
-    return
-  };
+  const note = (prompt.text || "").trim();
+  if (!note || !prompt.range) return;
 
-  setComments(prev => [
-    ...prev,
-    { id: crypto.randomUUID(), text }
-  ]);
+  const commentId = crypto.randomUUID();
 
-  setPrompt({ visible: false, text: "", range: null });
+  // Build span wrapper for the selection
+  const span = window.document.createElement("span");
+  span.style.backgroundColor = "#ffeb3b";
+  span.style.cursor = "pointer";
+  span.dataset.id = commentId;
+  span.dataset.comment = note;   // store the typed comment
+  span.title = note;             // native tooltip
+
+  const range = prompt.range.cloneRange();
+  const contents = range.extractContents();
+  span.appendChild(contents);
+  range.insertNode(span);
+
+  // Place caret after the inserted span
+  const zwsp = window.document.createTextNode("\u200B");
+  span.parentNode.insertBefore(zwsp, span.nextSibling);
+  const sel = window.getSelection();
+  const after = window.document.createRange();
+  after.setStartAfter(zwsp);
+  after.collapse(true);
+  sel.removeAllRanges();
+  sel.addRange(after);
+
+  // Update comments state + broadcast
+  setComments(prev => {
+    const comments = [
+      ...prev,
+      { id: commentId, text: note, selectedText: span.textContent, color: "#ffeb3b" }
+    ];
+    socket.emit("update_comments", { id: `${id}/${index}`, data: {comments} });
+    return comments;
+  });
+
+  // Persist updated HTML upstream
+  if (contentRef.current) {
+    handleChange({
+      target: { name: "content", value: contentRef.current.innerHTML },
+    });
+  }
+
+  // Reset prompt
+  setPrompt({ visible: false, text: "", range: null, selectedText: "" });
 };
-
 
   const handleIconClick = (event) => {
     event.preventDefault(); 
@@ -168,7 +141,7 @@ const handleSaveComment = (e) => {
           y: rect.y, // Top of the selection
         });
       }
-    }, 500);
+    }, 150);
   };
 
   useEffect(() => {
@@ -180,8 +153,8 @@ const handleSaveComment = (e) => {
     const spanElements = contentRef.current.querySelectorAll("span[data-id]");
 
     const restoredComments = Array.from(spanElements).map((span) => ({
-      id: Number(span.dataset.id),
-      text: span.textContent,
+      id: span.dataset.id,
+      text: span.dataset.comment || span.textContent,
       color: span.style.backgroundColor || "#ffeb3b",
     }));
 
@@ -269,7 +242,6 @@ const handleSaveComment = (e) => {
             contentEditable
             suppressContentEditableWarning
             ref={contentRef} //ref is just React's safe & reliable way of giving you the DOM object.
-            onContextMenu={(e) => onChange(e, handleChange, contentRef, setComments, id, index)}
             onInput={() => UpdateDocument()}
             style={{
               minHeight: "300px",
