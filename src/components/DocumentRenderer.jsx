@@ -166,27 +166,26 @@ function DocumentRenderer({
   };
 
   useEffect(() => {
-    if (!contentRef.current) {
-      return;
-    }
+    if (editorState) return; // only restore in visual mode
 
-    // Find all spans that represent comments
-    const spanElements = contentRef.current.querySelectorAll("span[data-id]");
+    const timer = setTimeout(() => {
+      if (!contentRef.current) return;
 
-    const restoredComments = Array.from(spanElements).map((span) => ({
-      id: span.dataset.id,
-      text: span.dataset.comment || span.textContent,
-      color: span.style.backgroundColor || "#ffeb3b",
-    }));
+      const spans = contentRef.current.querySelectorAll("span[data-id]");
+      const restored = Array.from(spans).map((span) => ({
+        id: span.dataset.id,
+        text: span.dataset.comment || span.textContent,
+        color: span.style.backgroundColor || "#ffeb3b",
+      }));
 
-    // Restore comments into state
-    if (restoredComments.length > 0) {
-      console.log("setting comments 1.");
-      setComments(restoredComments);
-    }
+      if (restored.length > 0) {
+        console.log("setting comments 1.");
+        setComments(restored);
+      }
+    }, 0);
 
-    console.log("Restored comments:", restoredComments);
-  }, []);
+    return () => clearTimeout(timer);
+  }, [document.content, editorState]);
 
   useEffect(() => {
     if (comments.length > 0) {
