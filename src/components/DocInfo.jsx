@@ -19,7 +19,7 @@ function DocInfo() {
   // Editor variables
   const [editorState, setEditorState] = useState(false); // Boolean
   const editorString = editorState ? "Document" : "Editor";
-  
+
   const docType = editorState ? "js" : "doc";
   const [codeResponse, setCodeResponse] = useState("");
 
@@ -31,7 +31,9 @@ function DocInfo() {
 
   const removeComment = (idToRemove) => {
     setComments((prevComments) => {
-      const updated = prevComments.filter((comment) => comment.id !== idToRemove);
+      const updated = prevComments.filter(
+        (comment) => comment.id !== idToRemove
+      );
       socket.emit("update_comments", {
         id: `${id}/${index}`,
         data: { comments: updated },
@@ -39,33 +41,32 @@ function DocInfo() {
       return updated;
     });
 
-  const span = window.document.querySelector(`span[data-id="${idToRemove}"]`);
-  if (span) {
-    span.replaceWith(window.document.createTextNode(span.textContent));
-    // persist edited HTML back to document state (same shape your editor uses)
-    const contentDiv = window.document.getElementById("content");
-    if (contentDiv) {
-      handleChange({
-        target: { name: "content", value: contentDiv.innerHTML },
-      });
+    const span = window.document.querySelector(`span[data-id="${idToRemove}"]`);
+    if (span) {
+      span.replaceWith(window.document.createTextNode(span.textContent));
+      // persist edited HTML back to document state (same shape your editor uses)
+      const contentDiv = window.document.getElementById("content");
+      if (contentDiv) {
+        handleChange({
+          target: { name: "content", value: contentDiv.innerHTML },
+        });
+      }
     }
-  }
-};
+  };
 
-const handleEditorState = () => {
-  const contentDiv = window.document.getElementById("content");
+  const handleEditorState = () => {
+    const contentDiv = window.document.getElementById("content");
 
-  // Save the contentEditable’s HTML before switching away
-  if (contentDiv && !editorState) {
-    setDocument((prev) => ({
-      ...prev,
-      content: contentDiv.innerHTML,
-    }));
-  }
+    // Save the contentEditable’s HTML before switching away
+    if (contentDiv && !editorState) {
+      setDocument((prev) => ({
+        ...prev,
+        content: contentDiv.innerHTML,
+      }));
+    }
 
-  setEditorState((prev) => !prev);
-};
-
+    setEditorState((prev) => !prev);
+  };
 
   const handleExecuteCode = async () => {
     let data = { code: btoa(document.content) };
@@ -123,7 +124,10 @@ const handleEditorState = () => {
 
   async function loadDocInfo() {
     try {
-      const documentFetchedData = await documentsObject.fetchDocumentByID(id, index);
+      const documentFetchedData = await documentsObject.fetchDocumentByID(
+        id,
+        index
+      );
       if (documentFetchedData) {
         setDocument(documentFetchedData.data);
       }
@@ -209,12 +213,12 @@ const handleEditorState = () => {
                   </div>
                 )}
 
-                <CommentCard 
+                <CommentCard
                   comments={comments}
                   removeComment={removeComment}
                 />
+              </div>
             </div>
-          </div>
           </div>
         </div>
       </div>
