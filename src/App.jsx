@@ -5,6 +5,7 @@ import CreateNewDoc from "./components/CreateNewDoc";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import ShareDocument from "./components/shareDocument";
+import GqlDemo from "./components/GqlDemo.jsx";
 
 import { useState, useEffect } from "react";
 
@@ -40,6 +41,7 @@ function App() {
           <Route path="/ssr-frontend/register" element={<Register />} />
           <Route path="/ssr-frontend/login" element={<Login />} />
           <Route path="/ssr-frontend/share-document/:id/:index" element={<ShareDocument />} />
+          <Route path="/ssr-frontend/gql-demo" element={<GqlDemo />} />
         </Routes>
       </div>
     </Router>
